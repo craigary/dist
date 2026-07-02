@@ -2,7 +2,7 @@
 
 Name:           caddy
 Version:        2.11.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Web server with automatic HTTPS
 License:        Apache-2.0
 URL:            https://caddyserver.com
@@ -121,7 +121,8 @@ if [ -x /usr/sbin/semanage -a -x /usr/sbin/restorecon ]; then
     semanage fcontext --add --type httpd_sys_content_t '%{_datadir}/caddy(/.*)?'        2> /dev/null || :
     semanage fcontext --add --type httpd_config_t      '%{_sysconfdir}/caddy(/.*)?'     2> /dev/null || :
     semanage fcontext --add --type httpd_var_lib_t     '%{_sharedstatedir}/caddy(/.*)?' 2> /dev/null || :
-    restorecon -r %{_bindir}/caddy %{_datadir}/caddy %{_sysconfdir}/caddy %{_sharedstatedir}/caddy || :
+    semanage fcontext --add --type httpd_log_t         '%{_localstatedir}/log/caddy(/.*)?' 2> /dev/null || :
+    restorecon -r %{_bindir}/caddy %{_datadir}/caddy %{_sysconfdir}/caddy %{_sharedstatedir}/caddy %{_localstatedir}/log/caddy || :
 fi
 if [ -x /usr/sbin/semanage ]; then
     # QUIC
@@ -150,6 +151,7 @@ if [ $1 -eq 0 ]; then
         semanage fcontext --delete --type httpd_sys_content_t '%{_datadir}/caddy(/.*)?'        2> /dev/null || :
         semanage fcontext --delete --type httpd_config_t      '%{_sysconfdir}/caddy(/.*)?'     2> /dev/null || :
         semanage fcontext --delete --type httpd_var_lib_t     '%{_sharedstatedir}/caddy(/.*)?' 2> /dev/null || :
+        semanage fcontext --delete --type httpd_log_t         '%{_localstatedir}/log/caddy(/.*)?' 2> /dev/null || :
         # QUIC
         semanage port     --delete --type http_port_t --proto udp 80   2> /dev/null || :
         semanage port     --delete --type http_port_t --proto udp 443  2> /dev/null || :
